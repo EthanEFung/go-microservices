@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"rest/handlers"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -15,13 +17,21 @@ func main() {
 	l.Println("Welcome!")
 
 	// create handlers
-	ho := handlers.NewOK(l)
 	hp := handlers.NewProducts(l)
 
 	// create a new server mux and registers the handlers
-	sm := http.NewServeMux()
-	sm.Handle("/", ho)
-	sm.Handle("/products", hp)
+	sm := mux.NewRouter()
+
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", hp.GetProducts)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", hp.UpdateProducts)
+	putRouter.Use(hp.MiddlewareProductValidation)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", hp.AddProduct)
+	postRouter.Use(hp.MiddlewareProductValidation)
 
 	// create a new server
 	s := http.Server{
