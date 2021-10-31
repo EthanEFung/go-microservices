@@ -31,6 +31,7 @@ func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST product")
 	prod := r.Context().Value(KeyProduct{}).(*data.Product)
 	data.AddProduct(prod)
+	rw.WriteHeader(http.StatusCreated)
 }
 
 func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
