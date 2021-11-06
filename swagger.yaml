@@ -1,0 +1,104 @@
+definitions:
+  GenericError:
+    properties:
+      message:
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: rest/handlers
+  Product:
+    properties:
+      description:
+        type: string
+        x-go-name: Description
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      price:
+        format: float
+        type: number
+        x-go-name: Price
+      sku:
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: rest/data
+  ValidationError:
+    properties:
+      messages:
+        items:
+          type: string
+        type: array
+        x-go-name: Messages
+    type: object
+    x-go-package: rest/handlers
+info: {}
+paths:
+  /products:
+    get:
+      description: Returns a list of products
+      operationId: products
+      responses:
+        "200":
+          $ref: '#/responses/productsResponse'
+    post:
+      description: Create a new product
+      operationId: createProduct
+      parameters:
+      - description: |-
+          Product data structure to Update or Create.
+          Note: the id field is ignored by update and create operations
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/Product'
+      tags:
+      - products
+    put:
+      description: Update a products details
+      operationId: updateProduct
+      parameters:
+      - description: |-
+          Product data structure to Update or Create.
+          Note: the id field is ignored by update and create operations
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/Product'
+      - description: The id of the product for which the operation relates
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      tags:
+      - products
+produces:
+- application/json
+responses:
+  errorResponse:
+    description: Generic error message returned as a string
+    schema:
+      $ref: '#/definitions/GenericError'
+  errorValidation:
+    description: Validation errors defined as an array of strings
+    schema:
+      $ref: '#/definitions/ValidationError'
+  productResponse:
+    description: Data structure representing a single product
+    schema:
+      $ref: '#/definitions/Product'
+  productsResponse:
+    description: A list of products
+    schema:
+      items:
+        $ref: '#/definitions/Product'
+      type: array
+swagger: "2.0"

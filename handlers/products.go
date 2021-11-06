@@ -11,16 +11,36 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ErrInvalidProductPath is an error message when the product path is not valid
+var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
+
+type GenericError struct {
+	Message string `json:"message"`
+}
+
+type ValidationError struct {
+	Messages []string `json:"messages"`
+}
+
+// KeyProduct is a key used for the Product object in the context
+type KeyProduct struct{}
+
+// Products handler for getting and updating products
 type Products struct {
 	l *log.Logger
 }
 
-type KeyProduct struct{}
-
+// New Products returns a new products handler with the given logger
 func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
+// swagger:route GET /products products
+// Returns a list of products
+// responses:
+//   200: productsResponse
+
+// GetProducts returns the products from the data store
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	lp := data.GetProducts()
 	if err := lp.ToJSON(rw); err != nil {
@@ -28,6 +48,15 @@ func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// swagger:route POST /products products createProduct
+// Create a new product
+
+// responses:
+// 	201: noContentResponse
+// 422: errorValidation
+// 501: errorResponse
+
+// AddProduct will write a product to the date store
 func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST product")
 	prod := r.Context().Value(KeyProduct{}).(*data.Product)
@@ -35,6 +64,16 @@ func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
+// swagger:route PUT /products products updateProduct
+// Update a products details
+
+// responses:
+// 	200: noContentResponse
+// 404: errorResponse
+// 422: errorValidation
+
+// UpdateProducts will find the product with the id given in the uri params and
+// update the product in the data store
 func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -55,6 +94,8 @@ func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// MiddlewardProductValidation will take a request body and validate that the body
+// is a valid product.
 func (p *Products) MiddlewareProductValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		prod := &data.Product{}
@@ -68,7 +109,7 @@ func (p *Products) MiddlewareProductValidation(next http.Handler) http.Handler {
 		// validate the product
 		err = prod.Validate()
 		if err != nil {
-			http.Error(rw, fmt.Sprintf( "Error validating product: %s", err), http.StatusBadRequest)
+			http.Error(rw, fmt.Sprintf("Error validating product: %s", err), http.StatusBadRequest)
 			return
 		}
 
