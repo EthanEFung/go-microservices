@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	gorHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "products-api", log.LstdFlags)
-	l.Println("Welcome!")
 
 	// create handlers
 	hp := handlers.NewProducts(l)
@@ -34,16 +34,20 @@ func main() {
 	postRouter.HandleFunc("/", hp.AddProduct)
 	postRouter.Use(hp.MiddlewareProductValidation)
 
+	// handler for documentation
 	ops := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
 	sh := middleware.Redoc(ops, nil)
 
 	getRouter.Handle("/docs", sh)
 	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir(".")))
 
+	// add cors
+	ch := gorHandlers.CORS(gorHandlers.AllowedOrigins([]string{"http://localhost:3000", "https://localhost:3000"}))
+
 	// create a new server
 	s := http.Server{
 		Addr:         ":8080",
-		Handler:      sm,
+		Handler:      ch(sm),
 		ErrorLog:     l,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
