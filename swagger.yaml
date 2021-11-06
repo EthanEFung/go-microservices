@@ -1,3 +1,6 @@
+basePath: /
+consumes:
+- application/json
 definitions:
   GenericError:
     properties:
@@ -36,15 +39,21 @@ definitions:
         x-go-name: Messages
     type: object
     x-go-package: rest/handlers
-info: {}
+info:
+  description: the purpose of this application is educating the author on how to build
+    webservice in golang.
+  title: Product API
+  version: 1.0.0
 paths:
-  /products:
+  /:
     get:
       description: Returns a list of products
-      operationId: products
+      operationId: getProducts
       responses:
         "200":
           $ref: '#/responses/productsResponse'
+      tags:
+      - products
     post:
       description: Create a new product
       operationId: createProduct
@@ -57,8 +66,16 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/Product'
+      responses:
+        "201":
+          $ref: '#/responses/noContentResponse'
+        "422":
+          $ref: '#/responses/errorValidation'
+        "501":
+          $ref: '#/responses/errorResponse'
       tags:
       - products
+  /{id}:
     put:
       description: Update a products details
       operationId: updateProduct
@@ -78,6 +95,13 @@ paths:
         required: true
         type: integer
         x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/noContentResponse'
+        "404":
+          $ref: '#/responses/errorResponse'
+        "422":
+          $ref: '#/responses/errorValidation'
       tags:
       - products
 produces:
@@ -91,6 +115,8 @@ responses:
     description: Validation errors defined as an array of strings
     schema:
       $ref: '#/definitions/ValidationError'
+  noContentResponse:
+    description: No content is returned by this API endpoint
   productResponse:
     description: Data structure representing a single product
     schema:
@@ -101,4 +127,6 @@ responses:
       items:
         $ref: '#/definitions/Product'
       type: array
+schemes:
+- http
 swagger: "2.0"

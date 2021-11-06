@@ -35,10 +35,10 @@ func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
-// swagger:route GET /products products
+// swagger:route GET / products getProducts
 // Returns a list of products
 // responses:
-//   200: productsResponse
+// 		200: productsResponse
 
 // GetProducts returns the products from the data store
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
@@ -48,13 +48,12 @@ func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route POST /products products createProduct
+// swagger:route POST / products createProduct
 // Create a new product
-
 // responses:
-// 	201: noContentResponse
-// 422: errorValidation
-// 501: errorResponse
+// 		201: noContentResponse
+// 		422: errorValidation
+// 		501: errorResponse
 
 // AddProduct will write a product to the date store
 func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
@@ -64,13 +63,12 @@ func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-// swagger:route PUT /products products updateProduct
+// swagger:route PUT /{id} products updateProduct
 // Update a products details
-
 // responses:
-// 	200: noContentResponse
-// 404: errorResponse
-// 422: errorValidation
+// 		200: noContentResponse
+// 		404: errorResponse
+// 		422: errorValidation
 
 // UpdateProducts will find the product with the id given in the uri params and
 // update the product in the data store

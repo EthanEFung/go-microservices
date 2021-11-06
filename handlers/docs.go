@@ -1,14 +1,14 @@
-// Package classification of Product API
-
-// Documentation for Product API
-
+// Package classification Product API
+//
+// the purpose of this application is educating the author on how to build webservice in golang.
+//
 //		Schemes: http
 //		BasePath: /
 //		Version: 1.0.0
-
+//
 //		Consumes:
 //		- application/json
-
+//
 //		Produces:
 //		- application/json
 //
@@ -49,6 +49,8 @@ type productResponseWrapper struct {
 	Body data.Product
 }
 
+// No content is returned by this API endpoint
+// swagger:response noContentResponse
 type noContentResponseWrapper struct{}
 
 // swagger:parameters updateProduct createProduct
